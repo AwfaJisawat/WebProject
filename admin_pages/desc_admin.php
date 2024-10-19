@@ -1,6 +1,5 @@
 <?php
 include '../includes/connect.php';
-include '../includes/header.php';
 
 $id = $_REQUEST["id"];
 
@@ -15,31 +14,7 @@ $row = mysqli_fetch_assoc($rs);
 $review_sql = "SELECT  * FROM reviews WHERE book_id = $id";
 $review_rs = mysqli_query($conn, $review_sql);
 
-if (isset($_REQUEST["loan"])) {
-    $loan_date = date('Y-m-d H:i:s'); // เปลี่ยนรูปแบบวันที่ให้ตรงกับที่บันทึกในฐานข้อมูล
-    $return_date = date('Y-m-d H:i:s', strtotime($loan_date . ' +7 days')); // เพิ่ม 7 วัน
-    $sql = "INSERT INTO book_loans (book_id, loan_date, return_date)
-            VALUES ('$id', '$loan_date', '$return_date')";
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('จองหนังสือสำเร็จ!'); window.location.href = 'index.php';</script>";
-    } else {
-        echo "เกิดข้อผิดพลาด";
-    }
-}
-
-if (isset($_REQUEST["add_comment"])) {
-    $comment = $_REQUEST["comment_text"];
-    $name = $_REQUEST["comment_name"];
-    $sql = $conn->prepare("INSERT INTO reviews (book_id, name, comment) VALUES (?,?,?)");
-    $sql->bind_param("iss", $id, $name, $comment);
-    if ($sql->execute()) {
-        echo "<script>window.location.href = '?id=$id';</script>";
-        // header('Location : desc_book.php');
-        exit;
-    } else {
-        echo "เกิดข้อผิดพลาด";
-    }
-}
+include '../includes/header2.php';
 ?>
 
 <head>
@@ -143,46 +118,14 @@ if (isset($_REQUEST["add_comment"])) {
                         onclick="return confirm('คุณแน่ใจว่าจะลบหนังสือเล่มนี้ใช่ไหม?')">ลบ</a>
                 </div> -->
 
-                <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal"
-                    data-bs-target="#exampleModal"><i class="bi bi-book pe-2"></i>
-                    ยืมหนังสือ
-                </button>
-                <script>
-                function heart() {
-                    const element = document.getElementById("heart"); // Get the DIV element
-                    element.classList.remove("bi-heart"); // Remove mystyle class from DIV
-                    element.classList.add("bi-heart-fill"); // Add newone class to DIV
-                }
-                </script>
-                <button class="btn btn-danger mt-3 ms-2" onclick="heart()"><i id="heart"
-                        class=" bi bi-heart"></i></button>
-
             </div>
         </div>
         <br>
 
         <!-- Comment Section -->
         <div class="container row">
-            <h3 class="col-6 offset-3 pb-3 pt-5">id<i class="bi bi-chat-right-text-fill pe-3"></i>รีวิว</h3>
+            <h3 class="col-6 offset-3 pb-3 pt-5"><i class="bi bi-chat-right-text-fill pe-3"></i>รีวิว</h3>
             <hr class="border-secondary" style="margin-left:300px;width:930px">
-            <div class="card col-md-4 offset-3 border-top" style="width: 55rem;">
-                <div class="card-body">
-                    <form action="" method=" POST">
-                        <input type="hidden" name="id" value="<?= $id ?>">
-                        <input type="hidden" name="comment_name" value="GUEST">
-                        <div class="row mb-3">
-                            <div class="col-sm-11">
-                                <p class="card-text">เขียนรีวิว</p>
-                                <textarea class="form-control" name="comment_text" rows="1"></textarea>
-                            </div>
-                            <div class="col-auto d-flex align-items-end g-0">
-                                <button type="submit" name="add_comment" class="btn btn-primary"><i
-                                        class="bi bi-send-fill"></i></button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
         <br>
 
@@ -219,30 +162,7 @@ if (isset($_REQUEST["add_comment"])) {
         </div>
         <br>
 
-
     </div>
 
-    <!-- Modal for Book Loan Confirmation -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">ยืนยันการยืมหนังสือ</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>คุณกำลังจะยืมหนังสือ: <strong><?= $row["title"] ?></strong></p>
-                    <p>วันที่คืนหนังสือคือ:
-                        <strong><?= date('d/m/Y', strtotime(date('d-m-Y') . ' +7 days')) ?></strong>
-                    </p>
-                    <p>กรุณากด "ยืนยัน" เพื่อดำเนินการยืมหนังสือ</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <a href="desc_book.php?id=<?= $id ?>&loan=1" class="btn btn-primary">ยืนยัน</a>
-                </div>
-            </div>
-        </div>
-    </div>
     <?php include '../includes/footer.php'; ?>
 </body>
